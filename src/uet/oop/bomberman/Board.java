@@ -188,7 +188,7 @@ public class Board implements IRender {
 		return null;
 	}
 	
-	public Character getCharacterAtExcluding(int x, int y, Character a) {
+	public Character getCharacterAtExcluding(int x, int y,Character a) {
 		Iterator<Character> itr = _characters.iterator();
 		
 		Character cur;

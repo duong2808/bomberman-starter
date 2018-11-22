@@ -79,6 +79,25 @@ public abstract class Enemy extends Character {
 		// TODO: sử dụng canMove() để kiểm tra xem có thể di chuyển tới điểm đã tính toán hay không
 		// TODO: sử dụng move() để di chuyển
 		// TODO: nhớ cập nhật lại giá trị cờ _moving khi thay đổi trạng thái di chuyển
+		int xr=0, yr =0;
+		if(_steps<=0){
+			_direction= _ai.calculateDirection();
+			_steps = MAX_STEPS;
+		}
+		if(_direction == 0)yr--;
+		if(_direction==2)yr++;
+		if(_direction==3)xr--;
+		if(_direction==1)xr++;
+
+		if(canMove(xr,yr)){
+			_steps -= 1 + rest;
+			move(xr * _speed, yr* _speed);
+			_moving = true;
+		}
+		else{
+			_steps =0;
+			_moving = false;
+		}
 	}
 	
 	@Override
@@ -91,13 +110,42 @@ public abstract class Enemy extends Character {
 	@Override
 	public boolean canMove(double x, double y) {
 		// TODO: kiểm tra có đối tượng tại vị trí chuẩn bị di chuyển đến và có thể di chuyển tới đó hay không
-		return false;
+		double xa = _x, ya = _y-16;
+		if(_direction == 0){
+			ya += _sprite.getSize()-1;
+			xa += _sprite.getSize()/2;
+		}
+		if(_direction == 1){
+			ya += _sprite.getSize()/2;
+			xa +=1;
+		}
+		if(_direction == 2){
+			xa += _sprite.getSize()/2;
+			ya +=1;
+		}
+		if(_direction ==3){
+			xa += _sprite.getSize()-1;
+			ya +=_sprite.getSize()/2;
+		}
+		int xx = Coordinates.pixelToTile(xa)+(int)x;
+		int yy = Coordinates.pixelToTile(ya)+(int )y;
+		Entity r = _board.getEntity(xx,yy,this);
+
+		return r.collide(this);
 	}
 
 	@Override
 	public boolean collide(Entity e) {
 		// TODO: xử lý va chạm với Flame
 		// TODO: xử lý va chạm với Bomber
+		if(e instanceof Flame){
+			kill();
+			return false;
+		}
+		if(e instanceof Character){
+			((Character)e).kill();
+			return false;
+		}
 		return true;
 	}
 	

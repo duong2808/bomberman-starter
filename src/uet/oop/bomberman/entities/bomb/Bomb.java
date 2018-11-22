@@ -1,10 +1,17 @@
 package uet.oop.bomberman.entities.bomb;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import uet.oop.bomberman.Board;
+import uet.oop.bomberman.Game;
 import uet.oop.bomberman.entities.AnimatedEntitiy;
 import uet.oop.bomberman.entities.Entity;
+import uet.oop.bomberman.entities.character.Bomber;
 import uet.oop.bomberman.graphics.Screen;
 import uet.oop.bomberman.graphics.Sprite;
+import uet.oop.bomberman.level.Coordinates;
+
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryNotEmptyException;
 
 public class Bomb extends AnimatedEntitiy {
 
@@ -22,7 +29,7 @@ public class Bomb extends AnimatedEntitiy {
 		_board = board;
 		_sprite = Sprite.bomb;
 	}
-	
+
 	@Override
 	public void update() {
 		if(_timeToExplode > 0) 
@@ -72,11 +79,22 @@ public class Bomb extends AnimatedEntitiy {
      * Xử lý Bomb nổ
      */
 	protected void explode() {
+		_timeToExplode = 0;
+		_allowedToPassThru = true;
 		_exploded = true;
 		
 		// TODO: xử lý khi Character đứng tại vị trí Bomb
 		
-		// TODO: tạo các Flame
+		// TODO: tạo các Flam
+		Bomber a= _board.getBomber();
+		if(a!= null){
+			a.kill();
+		}
+		_flames = new Flame[4];
+		for(int i=0;i<_flames.length;i++){
+			_flames[i] = new Flame((int)_x,(int)_y, i, Game.getBombRadius(),_board);
+		}
+
 	}
 	
 	public FlameSegment flameAt(int x, int y) {
@@ -95,6 +113,19 @@ public class Bomb extends AnimatedEntitiy {
 	public boolean collide(Entity e) {
         // TODO: xử lý khi Bomber đi ra sau khi vừa đặt bom (_allowedToPassThru)
         // TODO: xử lý va chạm với Flame của Bomb khác
-        return false;
+		if(e instanceof Bomber){
+			double difx = e.getX()- Coordinates.tileToPixel(getX());
+			double dify = e.getY() - Coordinates.tileToPixel(getY());
+			if(!(difx >= -10 && dify <16 && dify >=1 && dify <= 28)){
+				_allowedToPassThru = false;
+			}
+			return _allowedToPassThru;
+
+		}
+		if(e instanceof Flame){
+			explode();
+			return true;
+		}
+		return false;
 	}
 }

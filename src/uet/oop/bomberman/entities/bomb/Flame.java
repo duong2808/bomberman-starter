@@ -2,6 +2,7 @@ package uet.oop.bomberman.entities.bomb;
 
 import uet.oop.bomberman.Board;
 import uet.oop.bomberman.entities.Entity;
+import uet.oop.bomberman.entities.character.Bomber;
 import uet.oop.bomberman.graphics.Screen;
 
 public class Flame extends Entity {
@@ -53,7 +54,20 @@ public class Flame extends Entity {
 	 */
 	private int calculatePermitedDistance() {
 		// TODO: thực hiện tính toán độ dài của Flame
-		return 1;
+		int radius = 0;
+		int x = (int)_x;
+		int y = (int)_y;
+		while (radius<_radius){
+			if(_direction ==0)y--;
+			if(_direction ==1)x++;
+			if(_direction==2)y++;
+			if(_direction==3)x--;
+		}
+		Entity a  = _board.getEntity(x,y,null);
+		if(a instanceof Bomber)++ radius;
+		if(a.collide(this) ==false)
+		++radius;
+		return radius;
 	}
 	
 	public FlameSegment flameSegmentAt(int x, int y) {
